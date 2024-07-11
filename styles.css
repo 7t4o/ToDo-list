@@ -88,8 +88,8 @@ h1::before {
 }
 
 .text #btn:hover {
-    background-color: rgb(141, 35, 35);
-    color: #fff;
+    background-color: #e26200;
+    color: #f2f2f2;
 }
 
 .text #btn:active {
