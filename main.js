@@ -1,34 +1,97 @@
 let btn = document.getElementById("btn");
 let inp = document.getElementById("inp");
 let lst = document.getElementById("list");
+let tasks = [];
 let count = 1;
 
-function getText() {inp.value !== "" ? createTodo(inp.value) :"";}
 
-function createTodo(text) {
-    inp.value = "";
+if(window.localStorage.getItem("tasks")){
+    let tasks = JSON.parse(window.localStorage.getItem("tasks"));
+    tasks.forEach((task) => createTodo(task));
+    console.log(tasks)
+    count = tasks.length ? tasks[tasks.length-1].id + 1 : 1;
+}
+
+function getText() {
+    if(inp.value !== ""){
+        let obj = createObj(inp.value);
+        createTodo(obj);
+        if(window.localStorage.getItem("tasks")){
+            tasks = JSON.parse(window.localStorage.getItem("tasks"));
+            tasks.push(obj);
+            window.localStorage.setItem("tasks", JSON.stringify(tasks));
+        }else{
+            tasks.push(obj);
+            window.localStorage.setItem("tasks", JSON.stringify(tasks))
+        }
+        inp.value = "";
+    }
+}
+
+function createObj(text) {
+    let obj = {id:count, content:text};
+    count++;
+    return obj;
+}
+
+function createTodo(obj) {
     let toDo = document.createElement("div");
     toDo.id = "toDo";
-    toDo.setAttribute("count", count+"")
-    toDo.appendChild(document.createTextNode(text));
+    toDo.setAttribute("count", obj.id+"")
+    toDo.appendChild(document.createTextNode(obj.content));
 
-    let toDo_btn = document.createElement("i");
-    toDo_btn.className = "fa-solid fa-circle-xmark";
-    toDo_btn.id = "toDo_btn";
-    toDo_btn.setAttribute("count", count+"")
-    toDo.appendChild(toDo_btn);
+    let divBtns = document.createElement("div");
+    divBtns.className = "divBtns";
+
+    let del_btn = document.createElement("i");
+    del_btn.className = "fa-solid fa-circle-xmark";
+    del_btn.id = "toDo_btn";
+    del_btn.setAttribute("count", obj.id+"")
+    divBtns.appendChild(del_btn);
+
+    let edit_btn = document.createElement("i");
+    edit_btn.className = "fa-solid fa-pen";
+    edit_btn.id = "edit_btn";
+    edit_btn.setAttribute("count", obj.id+"")
+    divBtns.prepend(edit_btn);
+
+    toDo.appendChild(divBtns);
     lst.appendChild(toDo);
 
-    count++;
     deleteTodo();
+    editTodo();
 }
 
 function deleteTodo() {
-    let lst_i = document.querySelectorAll("#toDo i");
+    let lst_i = document.querySelectorAll(".divBtns #toDo_btn");
     lst_i.forEach(ele => {
         ele.addEventListener('click', function() {
             let elementToDelete = document.querySelector(`[count="${this.getAttribute('count')}"]`);
             elementToDelete ? elementToDelete.remove(): "";
+            if(window.localStorage.getItem("tasks")){
+                tasks = JSON.parse(window.localStorage.getItem("tasks"));
+                tasks = tasks.filter((task) => task.id != this.getAttribute('count'))
+                window.localStorage.setItem("tasks", JSON.stringify(tasks));
+            }
+        });
+    });
+}
+
+function editTodo() {
+    let lst_i = document.querySelectorAll(".divBtns #edit_btn");
+    lst_i.forEach(ele => {
+        ele.addEventListener('click', function() {
+            let elementToEdit = document.querySelector(`[count="${this.getAttribute('count')}"]`);
+            if(elementToEdit){
+                inp.value = elementToEdit.textContent;
+                inp.focus();
+                elementToEdit.remove();
+            }
+            if(window.localStorage.getItem("tasks")){
+                tasks = JSON.parse(window.localStorage.getItem("tasks"));
+                tasks = tasks.filter((task) => task.id != this.getAttribute('count'))
+                window.localStorage.setItem("tasks", JSON.stringify(tasks));
+            }
         });
     });
 }
