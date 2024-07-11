@@ -8,13 +8,12 @@ let count = 1;
 if(window.localStorage.getItem("tasks")){
     let tasks = JSON.parse(window.localStorage.getItem("tasks"));
     tasks.forEach((task) => createTodo(task));
-    console.log(tasks)
     count = tasks.length ? tasks[tasks.length-1].id + 1 : 1;
 }
 
-function getText() {
-    if(inp.value !== ""){
-        let obj = createObj(inp.value);
+function getText(val) {
+    if(val !== ""){
+        let obj = createObj(val);
         createTodo(obj);
         if(window.localStorage.getItem("tasks")){
             tasks = JSON.parse(window.localStorage.getItem("tasks"));
@@ -98,4 +97,12 @@ function editTodo() {
 
 document.addEventListener('keypress', function(e) {if (e.key === 'Enter') {btn.click();}});
 
-btn.addEventListener("click", getText)
+btn.addEventListener("click",() => getText(inp.value))
+
+inp.addEventListener('paste', (event) => {
+    event.preventDefault();
+    let pastedText = (event.clipboardData || window.clipboardData).getData('text');
+    let cleanedText = pastedText.replace(/\r/g, '');
+    let linesArray = cleanedText.split('\n');
+    linesArray.forEach((itm) => getText(itm));
+});
